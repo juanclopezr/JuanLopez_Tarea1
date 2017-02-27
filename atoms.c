@@ -19,7 +19,6 @@ void main(int argc, char **argv){
 	int T = 100*N;
 	int t = 0;
 	int i;
-	int j;
 	double *x;
 	double *xp;
 	double *ai;
@@ -41,6 +40,16 @@ void main(int argc, char **argv){
 			xp[i] += 0.5*(ai[i]+ai1[i])*dt;
 			
 			//printf("%f\n", x[i]);
+		}
+		if(t % 100 == 0)
+		{
+			FILE *atpos = fopen("atpos.dat", "a");
+			for(i=0;i<N;i++)
+			{
+				fprintf(atpos,"%f ",x[i]);
+			}
+			fprintf(atpos,"\n");
+			fclose(atpos);
 		}
 		t++;
 	}
