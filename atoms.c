@@ -35,18 +35,27 @@ void main(int argc, char **argv){
 		for(i=1;i<N-1;i++)
 		{
 			ai[i] = (x[i-1]+x[i+1]-2*x[i])+b*(pow(x[i+1]-x[i],3.0)-pow(x[i]-x[i-1],3));
-			x[i] += xp[i]*dt+0.5*ai[i]*dt*dt;
-			ai1[i] = (x[i-1]+x[i+1]-2*x[i])+b*(pow(x[i+1]-x[i],3.0)-pow(x[i]-x[i-1],3));
-			xp[i] += 0.5*(ai[i]+ai1[i])*dt;
-			
-			//printf("%f\n", x[i]);
 		}
+		for(i=1;i<N-1;i++)
+		{
+			x[i] = x[i]+xp[i]*dt+0.5*ai[i]*dt*dt;
+		}
+		for(i=1;i<N-1;i++)
+		{
+			ai1[i] = (x[i-1]+x[i+1]-2*x[i])+b*(pow(x[i+1]-x[i],3.0)-pow(x[i]-x[i-1],3));
+		}
+		for(i=1;i<N-1;i++)
+		{
+			xp[i] = xp[i]+0.5*(ai[i]+ai1[i])*dt;
+		}
+		
 		if(t % 100 == 0)
 		{
 			FILE *atpos = fopen("atpos.dat", "a");
 			for(i=0;i<N;i++)
 			{
 				fprintf(atpos,"%f ",x[i]);
+				//printf("%f\n",b);
 			}
 			fprintf(atpos,"\n");
 			fclose(atpos);
