@@ -8,6 +8,8 @@ atpos.dat times.dat : a.out
 	/usr/bin/time -o times.dat -f "%e \t%U \t%S" ./a.out 1
 	/usr/bin/time -a -o times.dat -f "%e \t%U \t%S" ./a.out 2
 	/usr/bin/time -a -o times.dat -f "%e \t%U \t%S" ./a.out 4
+	/usr/bin/time -a -o times.dat -f "%e \t%U \t%S" ./a.out 8
+	/usr/bin/time -a -o times.dat -f "%e \t%U \t%S" ./a.out 16
 
 a.out : atoms.c
 	gcc -lm -fopenmp -O3 atoms.c

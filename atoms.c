@@ -13,7 +13,7 @@ double acceleration(int i, double *pos);
 int main(int argc, char **argv)
 {
     int rank, source, destination, in_number, out_number;
-    double dt = 5e-3, T = pow(5.0*N, 2.2), t = 0, a, a_;
+    double dt = 5e-3, T = 5.0*pow(N, 2.2), t = 0, a, a_;
     int i, contador = 0, j = 0, n = (T/dt)/1000;
     double *x, *vn, *vhalf;
     x = (double *)malloc(N*sizeof(double));
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
         }
         if(contador%n == 0)
         {
-            //printf("%d\n", j);
+            printf("%d\n", j);
             for(i=0; i<N; i++)
             {
                 fprintf(atpos,"%f\t", x[i]);
