@@ -49,7 +49,7 @@ int main(int argc, char **argv)
                 fprintf(atpos,"%f\t", x[i]);
             }
             fprintf(atpos,"\n");
-            fprintf(Ener,"%f %f %f\n",modenergy(1,x),modenergy(2,x),modenergy(3,x));
+            fprintf(Ener,"%f %f %f %f\n",t,modenergy(1,x),modenergy(2,x),modenergy(3,x));
             j += 1;
         }
         t += dt;
