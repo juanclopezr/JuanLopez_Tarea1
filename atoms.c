@@ -9,6 +9,7 @@
 
 double *init(double *pos, double *v);
 double acceleration(int i, double *pos);
+double modenergy(int mod, double *pos);
 
 int main(int argc, char **argv)
 {
@@ -27,7 +28,9 @@ int main(int argc, char **argv)
     {
         omp_set_num_threads(atoi(argv[1]));
     }
-    FILE *atpos = fopen("atpos.dat", "w");
+    FILE *atpos, *Ener;
+    atpos = fopen("atpos.dat", "w");
+    Ener = fopen("Energies.dat", "w");
 
     while(t<T)
     {
@@ -46,12 +49,14 @@ int main(int argc, char **argv)
                 fprintf(atpos,"%f\t", x[i]);
             }
             fprintf(atpos,"\n");
+            fprintf(Ener,"%f %f %f\n",modenergy(1,x),modenergy(2,x),modenergy(3,x));
             j += 1;
         }
         t += dt;
         contador ++;
 	}
     fclose(atpos);
+    fclose(Ener);
     return 0;
 }
 
@@ -70,4 +75,18 @@ double acceleration(int i, double *pos)
 {
     double ac = pos[i-1] + pos[i+1] - 2*pos[i] + b*(pow(pos[i+1] - pos[i], 3.0) - pow(pos[i] - pos[i-1], 3.0));
     return ac;
+}
+
+double modenergy(int mod, double *pos)
+{
+	double wk = 4*pow(sin((double)mod*PI)/(2*(double)N+2),2.0);
+	double Ak = 0.0;
+	double Energy;
+	int i;
+	for(i=0;i<N;i++)
+	{
+		Ak += sqrt(2/((double)N+1))*pos[i]*sin((double)(i*mod)*PI/((double)N+1));
+	}
+	Energy = 0.5*(pow(Ak,2.0)+pow(wk*Ak,2.0));
+	return Energy;
 }
