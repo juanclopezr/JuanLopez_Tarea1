@@ -45,11 +45,7 @@ int main(int argc, char **argv)
 		{
             x[i] += vn[i]*dt + a_*dt_squared;
 		}
-		for(i=1;i<N-1;i++)
-		{
-            vn[i] += dt_half*(acceleration(i, x)+a_);
-        }
-	/*
+		/*
         if(contador%n == 0)
         {
             printf("%d\n", j);
@@ -74,6 +70,10 @@ int main(int argc, char **argv)
             values[2] = 0.5*(pow(E3[0], 2.0) + pow(freq(3)*E3[1], 2.0));
             fprintf(Ener,"%f %f %f %f\n", j*n*dt, values[0], values[1], values[2]);
 	    j += 1;
+        }
+		for(i=1;i<N-1;i++)
+		{
+            vn[i] += dt_half*(acceleration(i, x)+a_);
         }
         t += dt;
         contador ++;
