@@ -39,21 +39,21 @@ int main(int argc, char **argv)
         #pragma omp parallel for private(a_)
         for(i=1;i<N-1;i++)
         {
-            a_ = acceleration(i, x);
+            vhalf[i] = vn[i] + 0.5*dt*acceleration(i, x);
 		}
 		for(i=1;i<N-1;i++)
 		{
-            x[i] += vn[i]*dt + a_*dt_squared;
+            x[i] += vhalf[i]*dt;
 		}
 		for(i=1;i<N-1;i++)
 		{
-            vn[i] += dt_half*(acceleration(i, x)+a_);
+            vn[i] = vhalf[i] + 0.5*dt*acceleration(i, x);
         }
         if (contador%n == 0)
         {
-	    E1[0] = modenergy(1, vn);
-	    E2[0] = modenergy(2, vn);
-	    E3[0] = modenergy(3, vn);
+            E1[0] = modenergy(1, vn);
+            E2[0] = modenergy(2, vn);
+            E3[0] = modenergy(3, vn);
             E1[1] = modenergy(1, x);
             E2[1] = modenergy(2, x);
             E3[1] = modenergy(3, x);
