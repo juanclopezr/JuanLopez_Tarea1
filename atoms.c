@@ -18,18 +18,12 @@ int step = 1000;
 int main(int argc, char **argv)
 {
     int rank, source, destination, in_number, out_number;
-    double dt = 5e-3, T = 5.0*pow(N, 2.2), t = 0, a, a_, wk;
+    double dt = 5e-3, T = 5.0*pow(N, 2.2), t = 0, a, a_, wk, D1, D2, D3;
     int i, contador = 0, j = 0, n = (T/dt)/step;
-    double *x, *vn, *vhalf, *E_1, *E_2, *E_3, *D_1, *D_2, *D_3;
+    double *x, *vn, *vhalf, E1[2], E2[2], E3[2];
     x = (double *)malloc(N*sizeof(double));
     vn = (double *)malloc(N*sizeof(double));
     vhalf = (double *)malloc(N*sizeof(double));
-    E_1 = (double *)malloc(step*sizeof(double));
-    E_2 = (double *)malloc(step*sizeof(double));
-    E_3 = (double *)malloc(step*sizeof(double));
-    D_1 = (double *)malloc(step*sizeof(double));
-    D_2 = (double *)malloc(step*sizeof(double));
-    D_3 = (double *)malloc(step*sizeof(double));
     double values[3];
     double dt_half = 0.5*dt, dt_squared = 0.5*pow(dt, 2);
     x, vn = init(x, vn);
@@ -37,8 +31,7 @@ int main(int argc, char **argv)
     {
         omp_set_num_threads(atoi(argv[1]));
     }
-    FILE *atpos, *Ener;
-    atpos = fopen("atpos.dat", "w");
+    FILE *Ener;
     Ener = fopen("Energies.dat", "w");
 
     while(t<T)
@@ -59,30 +52,27 @@ int main(int argc, char **argv)
         if(contador%n == 0)
         {
             printf("%d\n", j);
-/*            for(i=0; i<N; i++)
-            {
-                fprintf(atpos,"%f\t", x[i]);
-            }
-            fprintf(atpos,"\n");
-*/            E_1[j] = modenergy(1, x);
-            E_2[j] = modenergy(2, x);
-            E_3[j] = modenergy(3, x);
+            E1[0] = modenergy(1, x);
+            E2[0] = modenergy(2, x);
+            E3[0] = modenergy(3, x);
             j += 1;
+        }
+        else if (contador%n == 1)
+        {
+            E1[1] = modenergy(1, x);
+            E2[1] = modenergy(2, x);
+            E3[1] = modenergy(3, x);
+            derivative(E1, &D1, dt);
+            derivative(E2, &D2, dt);
+            derivative(E3, &D3, dt);
+            values[0] = 0.5*(pow(D1, 2.0) + pow(freq(1)*E1[1], 2.0));
+            values[1] = 0.5*(pow(D2, 2.0) + pow(freq(2)*E2[1], 2.0));
+            values[2] = 0.5*(pow(D3, 2.0) + pow(freq(3)*E3[1], 2.0));
+            fprintf(Ener,"%f %f %f %f\n", j*n*dt, values[0], values[1], values[2]);
         }
         t += dt;
         contador ++;
 	}
-    derivative(E_1, D_1, dt*n);
-    derivative(E_2, D_2, dt*n);
-    derivative(E_3, D_3, dt*n);
-    for (i = 0; i<step; i++)
-    {
-        values[0] = 0.5*(pow(D_1[i], 2.0) + pow(freq(1)*E_1[i], 2.0));
-        values[1] = 0.5*(pow(D_2[i], 2.0) + pow(freq(2)*E_2[i], 2.0));
-        values[2] = 0.5*(pow(D_3[i], 2.0) + pow(freq(3)*E_3[i], 2.0));
-        fprintf(Ener,"%f %f %f %f\n", i*n*dt, values[0], values[1], values[2]);
-    }
-    fclose(atpos);
     fclose(Ener);
     return 0;
 }
@@ -106,11 +96,7 @@ double acceleration(int i, double *pos)
 
 void derivative(double *pos, double *def, double h)
 {
-    int i;
-    for(i=1;i<step;i++)
-    {
-        def[i-1] = (pos[i] - pos[i-1])/h;
-    }
+    *def = (pos[1] - pos[0])/h;
 }
 
 double freq(int mod)
