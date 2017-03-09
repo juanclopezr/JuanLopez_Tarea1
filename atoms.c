@@ -47,7 +47,13 @@ int main(int argc, char **argv)
         for(i=1;i<N-1;i++)
         {
             a_ = acceleration(i, x);
+		}
+		for(i=1;i<N-1;i++)
+		{
             x[i] += vn[i]*dt + a_*dt_squared;
+		}
+		for(i=1;i<N-1;i++)
+		{
             vn[i] += dt_half*(acceleration(i, x)+a_);
         }
         if(contador%n == 0)
