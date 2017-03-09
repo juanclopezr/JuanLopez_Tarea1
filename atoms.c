@@ -7,21 +7,30 @@
 #define PI acos(-1.0)
 #define b 1.0
 
+void derivative(double *pos, double *def, double h);
+double freq(int mod);
 double *init(double *pos, double *v);
 double acceleration(int i, double *pos);
 double modenergy(int mod, double *pos);
 
+int step = 1000;
+
 int main(int argc, char **argv)
 {
     int rank, source, destination, in_number, out_number;
-    double dt = 5e-3, T = 5.0*pow(N, 2.2), t = 0, a, a_;
-    int i, contador = 0, j = 0, n = (T/dt)/1000;
-    double *x, *vn, *vhalf;
+    double dt = 5e-3, T = 5.0*pow(N, 2.2), t = 0, a, a_, wk;
+    int i, contador = 0, j = 0, n = (T/dt)/step;
+    double *x, *vn, *vhalf, *E_1, *E_2, *E_3, *D_1, *D_2, *D_3;
     x = (double *)malloc(N*sizeof(double));
     vn = (double *)malloc(N*sizeof(double));
     vhalf = (double *)malloc(N*sizeof(double));
-
-
+    E_1 = (double *)malloc(step*sizeof(double));
+    E_2 = (double *)malloc(step*sizeof(double));
+    E_3 = (double *)malloc(step*sizeof(double));
+    D_1 = (double *)malloc(step*sizeof(double));
+    D_2 = (double *)malloc(step*sizeof(double));
+    D_3 = (double *)malloc(step*sizeof(double));
+    double values[3];
     double dt_half = 0.5*dt, dt_squared = 0.5*pow(dt, 2);
     x, vn = init(x, vn);
     if (argc > 1)
@@ -44,17 +53,29 @@ int main(int argc, char **argv)
         if(contador%n == 0)
         {
             printf("%d\n", j);
-            for(i=0; i<N; i++)
+/*            for(i=0; i<N; i++)
             {
                 fprintf(atpos,"%f\t", x[i]);
             }
             fprintf(atpos,"\n");
-            fprintf(Ener,"%f %f %f %f\n",t,modenergy(1,x),modenergy(2,x),modenergy(3,x));
+*/            E_1[j] = modenergy(1, x);
+            E_2[j] = modenergy(2, x);
+            E_3[j] = modenergy(3, x);
             j += 1;
         }
         t += dt;
         contador ++;
 	}
+    derivative(E_1, D_1, dt*n);
+    derivative(E_2, D_2, dt*n);
+    derivative(E_3, D_3, dt*n);
+    for (i = 0; i<step; i++)
+    {
+        values[0] = 0.5*(pow(D_1[i], 2.0) + pow(freq(1)*E_1[i], 2.0));
+        values[1] = 0.5*(pow(D_2[i], 2.0) + pow(freq(2)*E_2[i], 2.0));
+        values[2] = 0.5*(pow(D_3[i], 2.0) + pow(freq(3)*E_3[i], 2.0));
+        fprintf(Ener,"%f %f %f %f\n", i*n*dt, values[0], values[1], values[2]);
+    }
     fclose(atpos);
     fclose(Ener);
     return 0;
@@ -73,20 +94,31 @@ double *init(double *pos, double *v){
 
 double acceleration(int i, double *pos)
 {
-    double ac = pos[i-1] + pos[i+1] - 2*pos[i] + b*(pow(pos[i+1] - pos[i], 3.0) - pow(pos[i] - pos[i-1], 3.0));
+    double ac = pos[i-1] + pos[i+1] - 2*pos[i] + b*(pow(pos[i+1] - pos[i], 2.0) - pow(pos[i] - pos[i-1], 2.0));
     return ac;
 }
 
-double modenergy(int mod, double *pos)
+void derivative(double *pos, double *def, double h)
 {
-	double wk = 4*pow(sin((double)mod*PI)/(2*(double)N+2),2.0);
-	double Ak = 0.0;
-	double Energy;
+    int i;
+    for(i=1;i<step;i++)
+    {
+        def[i-1] = (pos[i] - pos[i-1])/h;
+    }
+}
+
+double freq(int mod)
+{
+    return 4.0*pow(sin((double)mod*PI)/(2*(double)N+2), 2.0);
+}
+
+double modenergy(int mod, double *pos)
+{	
+	double Ak = 0;
 	int i;
 	for(i=0;i<N;i++)
 	{
-		Ak += sqrt(2/((double)N+1))*pos[i]*sin((double)(i*mod)*PI/((double)N+1));
-	}
-	Energy = 0.5*(pow(Ak,2.0)+pow(wk*Ak,2.0));
-	return Energy;
+		Ak += pos[i]*sin(((double)(i+1)*mod)*PI/((double)(N+1)));
+    }
+	return Ak*sqrt(2/((double)(N+1)));
 }
