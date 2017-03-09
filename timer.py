@@ -7,7 +7,7 @@ processors = [1, 2, 4]
 times = np.genfromtxt("times.dat").T
 meaning = ["Real", "User", "System"]
 
-fig, axes = plt.subplots(3, sharex=True)
+fig, axes = plt.subplots(3)
 for i in range(3):
     axes[i].plot(processors, times[i], "-o", label = meaning[i])
     axes[i].set_ylabel("Time (s)")
