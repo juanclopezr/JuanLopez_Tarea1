@@ -45,15 +45,10 @@ int main(int argc, char **argv)
 		{
             x[i] += vn[i]*dt + a_*dt_squared;
 		}
-		/*
-        if(contador%n == 0)
-        {
-            printf("%d\n", j);
-            E1[0] = modenergy(1, x);
-            E2[0] = modenergy(2, x);
-            E3[0] = modenergy(3, x);
-            j += 1;
-        }*/
+		for(i=1;i<N-1;i++)
+		{
+            vn[i] += dt_half*(acceleration(i, x)+a_);
+        }
         if (contador%n == 0)
         {
 	    E1[0] = modenergy(1, vn);
@@ -61,19 +56,12 @@ int main(int argc, char **argv)
 	    E3[0] = modenergy(3, vn);
             E1[1] = modenergy(1, x);
             E2[1] = modenergy(2, x);
-            E3[1] = modenergy(3, x);/*
-            derivative(E1, &D1, dt);
-            derivative(E2, &D2, dt);
-            derivative(E3, &D3, dt);*/
+            E3[1] = modenergy(3, x);
             values[0] = 0.5*(pow(E1[0], 2.0) + pow(freq(1)*E1[1], 2.0));
             values[1] = 0.5*(pow(E2[0], 2.0) + pow(freq(2)*E2[1], 2.0));
             values[2] = 0.5*(pow(E3[0], 2.0) + pow(freq(3)*E3[1], 2.0));
             fprintf(Ener,"%f %f %f %f\n", j*n*dt, values[0], values[1], values[2]);
 	    j += 1;
-        }
-		for(i=1;i<N-1;i++)
-		{
-            vn[i] += dt_half*(acceleration(i, x)+a_);
         }
         t += dt;
         contador ++;
@@ -115,7 +103,7 @@ double modenergy(int mod, double *pos)
 	int i;
 	for(i=0;i<N;i++)
 	{
-		Ak += pos[i]*sin(((double)(i+1)*mod)*PI/((double)(N+1)));
+		Ak += pos[i]*sin(((double)(i*mod))*PI/((double)(N+1)));
     }
 	return Ak*sqrt(2/((double)(N+1)));
 }
