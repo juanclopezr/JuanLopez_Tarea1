@@ -68,6 +68,7 @@ int main(int argc, char **argv)
 void *init(double *pos, double *v)
 {
     int i;
+    #pragma omp parallel for
     for(i=0;i<N;i++)
     {
         pos[i] = sin(PI*i/(N-1.0));
@@ -99,6 +100,7 @@ double modenergy(int mod, double *pos)
 {	
 	int i;
     double Ak = 0;
+	#pragma omp parallel for  reduction( + : Ak)
 	for(i=1; i<N; i++)
 	{
 		Ak = Ak + pos[i]*sin(i*mod*PI/N);
